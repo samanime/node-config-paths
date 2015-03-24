@@ -21,15 +21,29 @@ describe('config-paths', function(){
         });
 
         it ('should do replacements', function () {
-            var data = require(dataPath('core'));
-            var config = configPaths.load(configPath('core'));
-            var result = configPaths.parse(data, config);
+            var result = getResult('core', 'core');
 
             assert.equal(result.test_path, 'abc/ghi');
             assert.equal(result.test_path2, 'abc/def/ghi');
         });
+
+        it ('can ignore non-existing values', function () {
+            var result = getResult('core', 'core');
+
+            assert(true);
+        });
+
+        it ('can have just an object with an empty config', function () {
+            var result = configPaths.parse(require(dataPath('demo')), {});
+
+            assert(true);
+        });
     });
 });
+
+function getResult(data_name, config_name) {
+    return configPaths.parse(require(dataPath(data_name)), configPaths.load(configPath(config_name)));
+}
 
 function dataPath (name) {
     return path.join(__dirname, 'data', name + '.js');

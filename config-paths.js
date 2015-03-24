@@ -45,8 +45,10 @@ ConfigPaths.load = function (config_files) {
  * will be unescaped by this function.
  * @param {Object.<string, string|Object.<string>>} obj
  * @param {Object.<string, string|Object.<string>>} config
+ * @param {Object.<string, string|Object.<string>>} [original_obj=]
  */
-ConfigPaths.parse = function (obj, config) {
+ConfigPaths.parse = function (obj, config, original_obj) {
+    original_obj = original_obj || obj;
     var newObj = ConfigPaths.helper.cloneObject(obj),
         name, value,
         clean = true;
@@ -56,9 +58,9 @@ ConfigPaths.parse = function (obj, config) {
             value = obj[name];
 
             if (typeof value === "object") {
-                newObj[name] = ConfigPaths.parse(value, config);
+                newObj[name] = ConfigPaths.parse(value, config, original_obj);
             } else {
-                newObj[name] = ConfigPaths.helper.parseString(value, obj, config);
+                newObj[name] = ConfigPaths.helper.parseString(value, original_obj, config);
 
                 if (value !== newObj[name] && /(?!\\)%/.test(newObj[name])) {
                     clean = false;
@@ -67,7 +69,7 @@ ConfigPaths.parse = function (obj, config) {
         }
     }
 
-    return !clean ? ConfigPaths.parse(newObj, config) : newObj;
+    return !clean ? ConfigPaths.parse(newObj, config, original_obj) : newObj;
 };
 
 ConfigPaths.helper.parseString = function (str, obj, config) {
@@ -99,7 +101,7 @@ ConfigPaths.helper.findString = function (str, obj) {
         console.warn('Value was expected to be object, but was string instead: ', str.substr(0, str.length - parts.join('.').length - 1));
         return null;
     }
-
+    
     return current;
 };
 
